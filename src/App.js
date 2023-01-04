@@ -1,45 +1,44 @@
-import React, { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import axios from "axios";
 
-function Users() {
-  const [users, setUsers] = useState(null);
-  const [error, setError] = useState(null);
-  const [loading, setLoading] = useState(false);
 
+const URL = 'http://localhost:8080/api/todo';
+function App() {
+  const [todoList,setTodoList] = useState(null);
+
+  const fetchData = async () => {
+    const response = await axios.get(URL);
+    setTodoList(response.data);
+  };
   useEffect(() => {
-    const fetchUser = async () => {
-      try {
-        setUsers(null);
-        setError(null);
-        setLoading(true);
-        const response = await axios.get(
-          "https://jsonplaceholder.typicode.com/users"
-        );
-
-        console.log(response);
-
-        setUsers(response.data);
-      } catch (e) {
-        setError(e);
-      }
-      setLoading(false);
-    };
-    fetchUser();
+    fetchData();
   }, []);
 
-  if (!users) {
-    return <p>로딩중...</p>;
+  const onSubmitHandler = async (e) => {
+    e.preventDefault();
+    const text = e.target.text.value;
+    const done = e.target.done.checked;
+    axios.post(URL, {text,done});
+    fetchData();
   }
-
+  
   return (
-    <ul>
-      {users.map((user) => (
-        <li key={user.id}>
-          {user.username}---({user.name})
-        </li>
+    <div className="App">
+      <h1>TODO LIST</h1>
+      <form onSubmit={onSubmitHandler}>
+        <input name = 'text'/>
+        <input name = 'done' type='checkbox' />
+        <input type = 'submit' value='추가' />
+      </form>
+      {todoList?.map((todo) => (
+        <div key={todo.id} style={{display:'flex'}}>
+          <div>{todo.id}</div>
+          <div>{todo.text}</div>
+          <div>{todo.done ? 'Y' : 'N'}</div>
+        </div>
       ))}
-    </ul>
+    </div>
   );
 }
 
-export default Users;
+export default App;
