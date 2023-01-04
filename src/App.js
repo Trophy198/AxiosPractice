@@ -17,6 +17,10 @@ function App() {
   const onSubmitHandler = async (e) => {
     e.preventDefault();
     const text = e.target.text.value;
+    if(text === ""){
+      alert("내용을 입력해주세요.");
+      return;
+    }
     const done = e.target.done.checked;
     axios.post(URL, {text,done});
     fetchData();
@@ -32,9 +36,9 @@ function App() {
       </form>
       {todoList?.map((todo) => (
         <div key={todo.id} style={{display:'flex'}}>
-          <div>{todo.id}</div>
-          <div>{todo.text}</div>
-          <div>{todo.done ? 'Y' : 'N'}</div>
+          <div>{todo.id}. &nbsp;</div>
+          <div>{todo.text} &nbsp; :  &nbsp;</div>
+          <div>{todo.done ? '해결됨' : '해결되지 않음'}</div>
         </div>
       ))}
     </div>
