@@ -1,48 +1,44 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
+import React, { useState } from 'react';
+import axios from 'axios';
 
-
-const URL = 'http://localhost:8080/api/todo';
 function App() {
-  const [todoList,setTodoList] = useState(null);
+  const [searchText,setSearchText] = useState("");
+  const [playerData, setPlayerData] = useState([]);
+  console.log(searchText);
 
-  const fetchData = async () => {
-    const response = await axios.get(URL);
-    setTodoList(response.data);
-  };
-  useEffect(() => {
-    fetchData();
-  }, []);
-
-  const onSubmitHandler = async (e) => {
-    e.preventDefault();
-    const text = e.target.text.value;
-    if(text === ""){
-      alert("내용을 입력해주세요.");
-      return;
-    }
-    const done = e.target.done.checked;
-    axios.post(URL, {text,done});
-    fetchData();
+  function searchForPlayer(event) {
+   const URL = `https://lostarkapi.ga/userinfo/${searchText}?sasa=false&collect=false&dtri=false`;
+   axios.get(URL).then(function (response) {
+    //성공했을때 가져오기
+    setPlayerData(response.data);
+    console.log(response.data.Basic.Class.Name);
+   }).catch(function (error){
+    //실패했을때 문구출력
+    console.log(error);
+   })
   }
-  
+
   return (
-    <div className="App">
-      <h1>TODO LIST</h1>
-      <form onSubmit={onSubmitHandler}>
-        <input name = 'text'/>
-        <input name = 'done' type='checkbox' />
-        <input type = 'submit' value='추가' />
-      </form>
-      {todoList?.map((todo) => (
-        <div key={todo.id} style={{display:'flex'}}>
-          <div>{todo.id}. &nbsp;</div>
-          <div>{todo.text} &nbsp; :  &nbsp;</div>
-          <div>{todo.done ? '해결됨' : '해결되지 않음'}</div>
-        </div>
-      ))}
+    <div className='App'>
+      <div className='container'>
+        <h5> Player Searcher</h5>
+        <input type="text" onChange={e => setSearchText(e.target.value)}></input>
+        <button onClick={e => searchForPlayer(e)}>Search for player</button>
+      </div>
+      {JSON.stringify(playerData) !== '[]' ?
+      <>
+      <p>&nbsp;&nbsp;&nbsp;{playerData.Basic.Title} {playerData.Basic.Name}</p>
+      <p>직업 :{playerData.Basic.Class.Name}</p>
+      <img src={playerData.Avatar_img} alt="img"/>
+      <p>각인 :{playerData.Basic.Engrave}</p>
+      <p>서버 : {playerData.Basic.Server}</p>
+      
+      </>
+      :
+      <><p>해당 플레이어가 존재하지 않습니다.</p></>
+      }
     </div>
-  );
+  )
 }
 
-export default App;
+export default App
